@@ -8,13 +8,24 @@ function parseTweets(runkeeper_tweets) {
 	tweet_array = runkeeper_tweets.map(function(tweet) {
 		return new Tweet(tweet.text, tweet.created_at);
 	});
+    
+    
+    
+    var activ = tweet_array.map(activitiesItem => {
+      return {"a": activitiesItem.activityType, "b": activitiesItem.time}
+    });
 
 	activity_vis_spec = {
 	  "$schema": "https://vega.github.io/schema/vega-lite/v4.0.0-beta.8.json",
 	  "description": "A graph of the number of Tweets containing each type of activity.",
 	  "data": {
-	    "values": tweet_array
-	  }
+	    "values": activ
+	  },
+      "mark": "bar",
+      "encoding": {
+        "x": {"field": "a", "type": "nominal", "axis": {"labelAngle": 90}},
+    "y": {"aggregate": "count", "field": "a"}
+      }
 	  //TODO: Add mark and encoding
 	};
 	vegaEmbed('#activityVis', activity_vis_spec, {actions:false});
