@@ -9,72 +9,38 @@ function parseTweets(runkeeper_tweets) {
     tweet_array = runkeeper_tweets.map(function(tweet) {
         return new Tweet(tweet.text, tweet.created_at);
     });
-// Filter to just the written tweets
     written_tweet_array=[];
-	for(var y=0;y<tweet_array.length;y++){
-	    if(tweet_array[y].written){
-	        written_tweet_array.push(tweet_array[y]);
+    
+    tweet_array.forEach(function(item){
+      if(item.written){
+	        written_tweet_array.push(item);
         }
-    }
-
-
-
-}
-// search written tweets
-function returnSearchList(term){
-    var tempArray=[];
-    var tableStr="";
-
-    var count=0;
-    for(var t=0; t < written_tweet_array.length;t++){
-
-        if(written_tweet_array[t].writtenText.includes(term)) {
-            count++;
-
-            tableStr+=written_tweet_array[t].getHTMLTableRow(count.valueOf(),written_tweet_array[t].source.toString(),written_tweet_array[t].text.toString());
-
-        }
-    }
-
-    $('#searchCount').text(count);
-    $('#searchText').text(term);
-    return tableStr;
+    });
 }
 
 // handle events
 function addEventHandlerForSearch() {
-    //TSearch the written tweets as text is entered into the search box, and add them to the table
-
     $('#textFilter').keyup(function () {
-        var x =document.getElementById("textFilter");
-        //refresh/clear page on action
+        var textsearch =document.getElementById("textFilter");
+        var term = textsearch.value.toString();
         $('#tweetTable').empty();
-
-        if(x.value.toString().length>0) {
-
-
-            $('#tweetTable').append(returnSearchList(x.value.toString()));
+        if(term.length>0) {
+            var content="";
+            var count=0;
+            written_tweet_array.forEach(function(item){
+              if(item.writtenText.includes(term)) {
+                    count++;
+                    content+=item.getHTMLTableRow(count.valueOf(),item.source.toString(),item.text.toString());
+                }
+            });
+            $('#searchCount').text(count);
+            $('#searchText').text(term);
+            $('#tweetTable').append(content);
         }else {
-            //when the input is empty everything clears
             $('#searchCount').text("???");
             $('#searchText').text("???");
         }
-
-    }
-     );
-//clear fields on change
-    $('#liveButton').click(function () {
-
-        document.getElementById('textFilter').value = '';
-        $('#tweetTable').empty();
-        $('#searchCount').text("???");
-        $('#searchText').text("???");
-
     });
-
-
-
-
 }
 
 //Wait for the DOM to load
