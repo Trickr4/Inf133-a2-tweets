@@ -41,6 +41,11 @@ class Tweet {
         if(!this.written) {
             return "";
         }
+        var filtered_text = this.text;
+        if(filtered_text.includes(" - ")){
+          return filtered_text.substring(  filtered_text.indexOf("- ")+ 2,filtered_text.indexOf(" https"));
+        }
+          
         //TODO: parse the written text from the tweet
         return "";
     }
@@ -51,23 +56,21 @@ class Tweet {
         }
         var kilo = this.text.match(/(\d{1,2}\.\d{2})\s(km)/);
         var mile = this.text.match(/(\d{1,2}\.\d{2})\s(mi)/);
-        if(kilo != null && kilo.length > 0)
-        {
-          var start = this.text.search(kilo[0])+kilo[0].length;
-          var split_with = this.text.substring(start,this.text.indexOf(' with', start+1));
-          var split_dash = this.text.substring(start,this.text.indexOf(' -', start+1))
-          if (split_with.length < split_dash.length)
-            return split_with;
-          return split_dash;
+        if (kilo != null && kilo.length > 0) {
+            var start = this.text.search(kilo[0]) + kilo[0].length +1;
+            var split_with = this.text.substring(start, this.text.indexOf(' with', start));
+            var split_dash = this.text.substring(start, this.text.indexOf(' -', start));
+            if (split_with.length < split_dash.length)
+                return split_with;
+            return split_dash;
         }
-        else if(mile != null && mile.length > 0)
-        {
-          var start = this.text.search(mile[0])+mile[0].length;
-          var split_with = this.text.substring(start,this.text.indexOf(' with', start+1));
-          var split_dash = this.text.substring(start,this.text.indexOf(' -', start+1))
-          if (split_with.length < split_dash.length)
-            return split_with;
-          return split_dash;
+        else if (mile != null && mile.length > 0) {
+            var start = this.text.search(mile[0]) + mile[0].length +1;
+            var split_with = this.text.substring(start, this.text.indexOf(' with', start));
+            var split_dash = this.text.substring(start, this.text.indexOf(' -', start));
+            if (split_with.length < split_dash.length)
+                return split_with;
+            return split_dash;
         }
         //TODO: parse the activity type from the text of the tweet
         return "unknown";
@@ -77,12 +80,29 @@ class Tweet {
         if(this.source != 'completed_event') {
             return 0;
         }
+        var kilo = this.text.match(/(\d{1,2}\.\d{2})\s(km)/);
+        var mile = this.text.match(/(\d{1,2}\.\d{2})\s(mi)/);
+        if (kilo != null) {
+            return parseFloat(kilo[0].substr(0,kilo[0].indexOf(' ')));
+        }
+        else if (mile != null) {
+            return parseFloat(mile[0].substr(0,mile[0].indexOf(' '))) *1.60934 ;
+        }
         //TODO: prase the distance from the text of the tweet
         return 0;
     }
 
     getHTMLTableRow(rowNumber:number):string {
         //TODO: return a table row which summarizes the tweet with a clickable link to the RunKeeper activity
-        return "<tr></tr>";
+        var startPos = this.text.indexOf("https://");
+        var endPos = this.text.indexOf(" ", startPos);
+        var writ = this.writtenText;
+        var intro = this.text.substring(0, startPos);
+        var hashtag = this.text.substring(endPos);
+        var link = this.text.substring(startPos, endPos);
+        var str = "<tr><td><b>" + rowNumber + "</b></td>" +
+            "<td>" + this.activityType + "</td>" +
+            "<td>" + intro + "<a href =" + link + ">" + link + "</a>" + hashtag + "</td></tr>";
+        return str;
     }
 }
